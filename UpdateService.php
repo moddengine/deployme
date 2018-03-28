@@ -33,37 +33,43 @@ class UpdateService {
 
   function installNew() {
     if(!is_dir(self::SITES_DIR)) mkdir(self::SITES_DIR);
-    $this->getSiteName();
+    $this->getSiteInfo();
     $this->createSiteDir();
     $this->updateDbConf();
-    $this->defaultPlugs();
+    $this->writeLive();
   }
 
   function installModdEngine() {
     $installDir = realpath(__DIR__ . '/..');
     chdir($installDir);
     system("git clone https://github.com/moddross/moddengine moddengine.{$this->meVer}");
-    chdir("moddengine.$newVer");
+    chdir("moddengine.{$this->meVer}");
     system("php install.php");
   }
 
 
-  function getSiteName() {
+  function getSiteInfo() {
     if($this->siteId === null) {
-      if(is_file($this->webRoot . "/index.php")) {
-        $indexphp = file_get_contents($this->webRoot . "/index.php");
-        if(strpos('# Update ModdEngine') !== false &&
-          preg_match('/define\("ME_SITE", "([a-zA-Z0-9]+)"\);/', $indexphp, $m)) {
-          $this->siteId = $m[1];
-        }
+      $this->loadSiteInfo();
+      if(!$this->siteId) {
+        do {
+          echo "\n";
+          $site = trim(readline("Enter ModdEngine site id:"));
+        } while(strlen($site) >= 0);
+        $this->siteId = $site;
       }
-      if($this->siteId) $default = $this->siteId;
-      do {
-        echo "\n";
-        $site = trim(readline("Enter ModdEngine site id ($default):"));
-        if(strlen($site) == 0) $site = $default;
-      } while(strlen($site) >= 0);
-      $this->siteId = $site;
+    }
+  }
+
+  function loadSiteInfo() {
+    if(is_file($this->webRoot . "/index.php")) {
+      $indexphp = file_get_contents($this->webRoot . "/index.php");
+      if(strpos($indexphp, '# Update ModdEngine') !== false &&
+        preg_match('/ define\("ME_SITE", "([a-zA-Z0-9]+)"\);/', $indexphp, $m)) {
+        $this->siteId = $m[1];
+        preg_match('/ define\("ME_VER", "([a-zA-Z0-9]+)"\);/', $indexphp, $m);
+        $this->meVer = $m[1];
+      }
     }
   }
 
@@ -73,7 +79,7 @@ class UpdateService {
 
 
   function updateDbConf($forceUpdate = false) {
-    $this->getSiteName();
+    $this->getSiteInfo();
     $localConfFile = __DIR__ . "/" . self::SITES_DIR . "/_local/conf.json";
     $siteConfFile = __DIR__ . "/" . self::SITES_DIR . "/{$this->siteId}/conf.json";
     $localConf = is_file($localConfFile) ?
@@ -144,5 +150,9 @@ class UpdateService {
     echo "Site directory setup: $dir\n";
   }
 
+  function writeLive() {
+    $dir = $this->getSiteDirPath();
+    file_put_contents("$dir/live.txt", $this->meVer);
+  }
 
 }
