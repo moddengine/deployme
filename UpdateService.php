@@ -46,7 +46,7 @@ class UpdateService {
   function installModdEngine() {
     $installDir = realpath(__DIR__ . '/..');
     chdir($installDir);
-    system("git clone https://github.com/moddross/moddengine moddengine.{$this->meVer}");
+    system("git clone git@github.com:moddross/plugin.git moddengine.{$this->meVer}");
     chdir("moddengine.{$this->meVer}");
     system("php install.php");
   }
