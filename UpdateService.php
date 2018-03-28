@@ -60,7 +60,7 @@ class UpdateService {
         do {
           echo "\n";
           $site = trim(readline("Enter ModdEngine site id:"));
-        } while(strlen($site) >= 0);
+        } while(strlen($site) == 0);
         $this->siteId = $site;
       }
     }
