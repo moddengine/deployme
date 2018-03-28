@@ -1,5 +1,5 @@
 <?php
-# Update ModdEngine
+# Managed by moddengine updateme
 
 define("ME_SITE", "__SITEID__");
 define("ME_SITE_DIR", "__SITEDIR__");
