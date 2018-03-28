@@ -4,6 +4,7 @@
 namespace UpdateME;
 
 if(!function_exists('readline')) {
+  global $hSTD_IN;
   $hSTD_IN = fopen('php://stdin', 'r');
   function readline($prompt) {
     global $hSTD_IN;
