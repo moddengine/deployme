@@ -6,7 +6,7 @@ define("ME_SITE_DIR", "__SITEDIR__");
 
 if(isset($_REQUEST['MODDENGINE_VERSION_OVERRIDE']) &&
   preg_match('/^[a-z]$/', $_REQUEST['MODDENGINE_VERSION_OVERRIDE'])) {
-  $dir = realpath("../moddengine.{$_REQUEST['MODDENGINE_VERSION_OVERRIDE']}");
+  $dir = realpath(__DIR__."/../moddengine.{$_REQUEST['MODDENGINE_VERSION_OVERRIDE']}");
   define("ME_DIR", "$dir");
 }
 if(!defined("ME_DIR"))
