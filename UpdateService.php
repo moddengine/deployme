@@ -22,7 +22,10 @@ class UpdateService {
   public $siteDbPass = null;
   public $siteDbName = null;
   public $siteDbConf = 'local';
+
   public $webRootDir = null;
+
+  public $meVer = 'a';
 
   public function __construct($webRootDir = '../public_html') {
     $this->webRoot = realpath(__DIR__ . "/$webRootDir");
@@ -31,13 +34,15 @@ class UpdateService {
   function installNew() {
     if(!is_dir(self::SITES_DIR)) mkdir(self::SITES_DIR);
     $this->getSiteName();
+    $this->createSiteDir();
     $this->updateDbConf();
+    $this->defaultPlugs();
   }
 
-  function installModdEngine($newVer = 'a') {
+  function installModdEngine() {
     $installDir = realpath(__DIR__ . '/..');
     chdir($installDir);
-    system("git clone https://github.com/moddross/moddengine moddengine.$newVer");
+    system("git clone https://github.com/moddross/moddengine moddengine.{$this->meVer}");
     chdir("moddengine.$newVer");
     system("php install.php");
   }
@@ -62,12 +67,19 @@ class UpdateService {
     }
   }
 
+  function getSiteDirPath() {
+    return realpath($siteDir = __DIR__ . "/" . self::SITES_DIR . "/{$this->siteId}");
+  }
+
+
   function updateDbConf($forceUpdate = false) {
     $this->getSiteName();
     $localConfFile = __DIR__ . "/" . self::SITES_DIR . "/_local/conf.json";
     $siteConfFile = __DIR__ . "/" . self::SITES_DIR . "/{$this->siteId}/conf.json";
-    $localConf = json_decode(file_get_contents($localConfFile), true);
-    $siteConf = json_decode(file_get_contents($siteConfFile), true);
+    $localConf = is_file($localConfFile) ?
+      json_decode(file_get_contents($localConfFile), true) : [];
+    $siteConf = is_file($siteConfFile) ?
+      json_decode(file_get_contents($siteConfFile), true): [];
     if(isset($localConf['db']['user'])) {
       $this->siteDbUser = $localConf['db']['user'];
     } elseif(isset($siteConf['db']['user'])) {
@@ -120,6 +132,16 @@ class UpdateService {
     echo 'FIXME: Create folder table, common folder, and admin folder\n';
     echo 'FIXME: Create folder Perms, every can read bldpage\n';
     echo 'FIXME: Create immix table, with new home bldpage\n';
+  }
+
+  function createSiteDir() {
+    $dir = $this->getSiteDirPath();
+    if(!is_dir($dir)) mkdir($dir);
+    if(!is_dir("$dir/data")) mkdir("$dir/data");
+    if(!is_dir("$dir/attach")) mkdir("$dir/attach");
+    if(!is_file("$dir/plug.{$this->meVer}.json"))
+      copy(__DIR__ . "/template/plug.json", "$dir/plug.{$this->meVer}.json");
+    echo "Site directory setup: $dir\n";
   }
 
 
