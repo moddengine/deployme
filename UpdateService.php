@@ -15,9 +15,11 @@ if(!function_exists('readline')) {
 
 class UpdateService {
 
-  CONST SITES_DIR = '../sites.me';
+  const SITES_DIR = '../sites.me';
+  const MODDENG_COMMENT = '# Managed by moddengine updateme';
 
   public $siteId = null;
+  public $siteHost = null;
   public $siteDbUser = null;
   public $siteDbPass = null;
   public $siteDbName = null;
@@ -36,7 +38,9 @@ class UpdateService {
     $this->getSiteInfo();
     $this->createSiteDir();
     $this->updateDbConf();
+    $this->updateAndFetch();
     $this->writeLive();
+    $this->updateWebRoot();
   }
 
   function installModdEngine() {
@@ -64,7 +68,7 @@ class UpdateService {
   function loadSiteInfo() {
     if(is_file($this->webRoot . "/index.php")) {
       $indexphp = file_get_contents($this->webRoot . "/index.php");
-      if(strpos($indexphp, '# Update ModdEngine') !== false &&
+      if(strpos($indexphp, self::MODDENG_COMMENT) !== false &&
         preg_match('/ define\("ME_SITE", "([a-zA-Z0-9]+)"\);/', $indexphp, $m)) {
         $this->siteId = $m[1];
         preg_match('/ define\("ME_VER", "([a-zA-Z0-9]+)"\);/', $indexphp, $m);
@@ -77,6 +81,10 @@ class UpdateService {
     return realpath($siteDir = __DIR__ . "/" . self::SITES_DIR . "/{$this->siteId}");
   }
 
+  function getWebRootDirPath() {
+    return realpath($siteDir = __DIR__ . "/" . $this->webRoot);
+  }
+
 
   function updateDbConf($forceUpdate = false) {
     $this->getSiteInfo();
@@ -85,7 +93,7 @@ class UpdateService {
     $localConf = is_file($localConfFile) ?
       json_decode(file_get_contents($localConfFile), true) : [];
     $siteConf = is_file($siteConfFile) ?
-      json_decode(file_get_contents($siteConfFile), true): [];
+      json_decode(file_get_contents($siteConfFile), true) : [];
     if(isset($localConf['db']['user'])) {
       $this->siteDbUser = $localConf['db']['user'];
     } elseif(isset($siteConf['db']['user'])) {
@@ -150,9 +158,46 @@ class UpdateService {
     echo "Site directory setup: $dir\n";
   }
 
+  function updateAndFetch() {
+    echo "Creating updated.{$this->meVer} file\n";
+    touch($this->getSiteDirPath()."/updated.{$this->meVer}");
+    echo "Fetching Admin Base\n";
+    file_get_contents('https://'.str_replace('.','_',$this->siteHost).".myudo.net/admin/");
+  }
+
   function writeLive() {
     $dir = $this->getSiteDirPath();
     file_put_contents("$dir/live.txt", $this->meVer);
+  }
+
+  function updateWebRoot() {
+    // Move WebRoot to WebRoot.old or just update inplace
+    $root = $this->getWebRootDirPath();
+    $livehtaccess = is_file("$root/.htaccess") ?
+      file_get_contents("$root/.htaccess") : "";
+    if(strpos($livehtaccess, self::MODDENG_COMMENT) !== false) {
+      //Move Old Webroot - not moddengine by updateme
+      rename("$root", "$root.old");
+      mkdir($root);
+    }
+    $htaccess = file_get_contents(__DIR__."/template/.htaccess");
+    file_put_contents("$root/.htaccess", $this->applyTemplate($htaccess));
+    $indexphp = file_get_contents(__DIR__."/template/index.php");
+    file_put_contents("$root/index.php", $this->applyTemplate($indexphp));
+    file_put_contents($this->getSiteDirPath()."/live", $this->meVer);
+  }
+
+  /**
+   * Replace placeholders in template with values
+   *
+   * @param string $template
+   * @return string
+   */
+  function applyTemplate($template) {
+    return str_replace(['__SITEID__', '__SITEDIR__', '__MEDIR__', '__MEVER__'],
+      [$this->siteId, $this->getSiteDirPath(),
+        realpath(__DIR__."../moddengine.{$this->meVer}"), $this->meVer],
+      $template);
   }
 
 }
