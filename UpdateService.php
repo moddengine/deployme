@@ -117,7 +117,7 @@ class UpdateService {
         if(strlen($v) !== 0) $this->siteDbUser = $v;
         $v = trim(readline("Password ({$this->siteDbPass}): "));
         if(strlen($v) !== 0) $this->siteDbPass = $v;
-        $v = trim(readline("Password ({$this->siteDbName}): "));
+        $v = trim(readline("Database Name ({$this->siteDbName}): "));
         if(strlen($v) !== 0) $this->siteDbName = $v;
         $mysql = new \mysqli('localhost', $this->siteDbUser, $this->siteDbPass, $this->siteDbName);
         if($mysql->connect_error) {
@@ -129,7 +129,7 @@ class UpdateService {
           echo "MySQL Connection: Ok\n";
         }
         $ok = trim(strtolower(readline("Apply Database Settions (yes/no):")));
-      } while($ok != 'y' || $ok != 'yes');
+      } while($ok != 'y' && $ok != 'yes');
       $siteConf['db']['db'] = $this->siteDbUser;
       if($this->siteDbConf == 'local') {
         $localConf['db']['user'] = $this->siteDbUser;
