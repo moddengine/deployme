@@ -92,9 +92,9 @@ class UpdateService {
     if(is_file($indexFile)) {
       $indexphp = file_get_contents($indexFile);
       if(strpos($indexphp, self::MODDENG_COMMENT) !== false &&
-        preg_match('/ define\("ME_SITE", "([a-zA-Z0-9]+)"\);/', $indexphp, $m)) {
+        preg_match('/define\("ME_SITE", "([a-zA-Z0-9]+)"\);/', $indexphp, $m)) {
         $this->siteId = $m[1];
-        preg_match('/ define\("ME_VER", "([a-zA-Z0-9]+)"\);/', $indexphp, $m);
+        preg_match('/define\("ME_VER", "([a-zA-Z0-9]+)"\);/', $indexphp, $m);
         $this->meVer = $m[1];
       }
     }
