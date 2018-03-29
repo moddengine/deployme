@@ -30,6 +30,7 @@ class UpdateService {
   public $webRootDir = null;
 
   public $meVer = 'a';
+  public $meBranch = 'udo16-webpack2';
 
   public function __construct($webRootDir = '../public_html') {
     $this->webRoot = realpath(__DIR__ . "/$webRootDir");
@@ -56,8 +57,9 @@ class UpdateService {
     chdir($installDir);
     $update = is_dir("moddengine.{$this->meVer}");
     if(!$update)
-    system("git clone git@github.com:moddross/plugin.git moddengine.{$this->meVer}");
+    system("git clone git@github.com:moddross/moddengine.git moddengine.{$this->meVer}");
     chdir("moddengine.{$this->meVer}");
+    system("git checkout {$this->meBranch}");
     if($update)
       system('git pull');
     system("php install.php");
@@ -162,7 +164,7 @@ class UpdateService {
 
   function createSiteDir() {
     $dir = $this->getSiteDirPath();
-    echo "Checking Site Dir:: $dir";
+    echo "Checking Site Dir:: $dir\n";
     if(!is_dir($dir)) mkdir($dir);
     if(!is_dir("$dir/data")) mkdir("$dir/data");
     if(!is_dir("$dir/attach")) mkdir("$dir/attach");
