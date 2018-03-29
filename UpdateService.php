@@ -42,6 +42,11 @@ class UpdateService {
       echo "Creating sites dir: $sitesDir\n";
       mkdir($sitesDir);
     }
+    $sitesDir = self::absPath(__DIR__,self::SITES_DIR,'_local');
+    if(!is_dir($sitesDir)) {
+      echo "Creating local config dir: $sitesDir\n";
+      mkdir($sitesDir);
+    }
     $this->getSiteInfo();
     $this->createSiteDir();
     $this->updateDbConf();
