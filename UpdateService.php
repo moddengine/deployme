@@ -86,11 +86,11 @@ class UpdateService {
   }
 
   function getSiteDirPath() {
-    return realpath($siteDir = __DIR__ . "/" . self::SITES_DIR . "/{$this->siteId}");
+    return realpath(__DIR__ . "/" . self::SITES_DIR . "/{$this->siteId}");
   }
 
   function getWebRootDirPath() {
-    return realpath($siteDir = __DIR__ . "/" . $this->webRoot);
+    return realpath(__DIR__ . "/" . $this->webRoot);
   }
 
 
