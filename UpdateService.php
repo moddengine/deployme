@@ -214,7 +214,8 @@ class UpdateService {
   }
 
 
-  static function absPath($path) {
+  static function absPath() {
+    $path = implode(DIRECTORY_SEPARATOR, func_get_args());
     $path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path);
     $parts = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
     $absolutes = array();
