@@ -90,11 +90,11 @@ class UpdateService {
   }
 
   function getSiteDirPath() {
-    return realpath(__DIR__ . "/" . self::SITES_DIR . "/{$this->siteId}");
+    return self::absPath(__DIR__ . "/" . self::SITES_DIR . "/{$this->siteId}");
   }
 
   function getWebRootDirPath() {
-    return realpath(__DIR__ . "/" . $this->webRoot);
+    return self::absPath(__DIR__ . "/" . $this->webRoot);
   }
 
 
@@ -213,4 +213,19 @@ class UpdateService {
       $template);
   }
 
+
+  static function absPath($path) {
+    $path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path);
+    $parts = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
+    $absolutes = array();
+    foreach ($parts as $part) {
+      if ('.' == $part) continue;
+      if ('..' == $part) {
+        array_pop($absolutes);
+      } else {
+        $absolutes[] = $part;
+      }
+    }
+    return implode(DIRECTORY_SEPARATOR, $absolutes);
+  }
 }
