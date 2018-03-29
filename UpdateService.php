@@ -162,12 +162,13 @@ class UpdateService {
 
   function createSiteDir() {
     $dir = $this->getSiteDirPath();
+    echo "Checking Site Dir:: $dir";
     if(!is_dir($dir)) mkdir($dir);
     if(!is_dir("$dir/data")) mkdir("$dir/data");
     if(!is_dir("$dir/attach")) mkdir("$dir/attach");
     if(!is_file("$dir/plug.{$this->meVer}.json"))
       copy(__DIR__ . "/template/plug.json", "$dir/plug.{$this->meVer}.json");
-    echo "Site directory setup: $dir\n";
+    echo "Site directory created: $dir\n";
   }
 
   function updateAndFetch() {
