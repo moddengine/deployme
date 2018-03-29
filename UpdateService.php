@@ -36,7 +36,7 @@ class UpdateService {
   }
 
   function installNew() {
-    $sitesDir = realpath(__DIR__."/".self::SITES_DIR);
+    $sitesDir = self::absPath(__DIR__,self::SITES_DIR);
     if(!is_dir($sitesDir)) {
       echo "Creating sites dir: $sitesDir\n";
       mkdir($sitesDir);
@@ -90,11 +90,11 @@ class UpdateService {
   }
 
   function getSiteDirPath() {
-    return self::absPath(__DIR__ . "/" . self::SITES_DIR . "/{$this->siteId}");
+    return self::absPath(__DIR__,self::SITES_DIR, $this->siteId);
   }
 
   function getWebRootDirPath() {
-    return self::absPath(__DIR__ . "/" . $this->webRoot);
+    return self::absPath(__DIR__,$this->webRoot);
   }
 
 
