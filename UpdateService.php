@@ -36,7 +36,11 @@ class UpdateService {
   }
 
   function installNew() {
-    if(!is_dir(self::SITES_DIR)) mkdir(self::SITES_DIR);
+    $sitesDir = realpath(__DIR__."/".self::SITES_DIR);
+    if(!is_dir($sitesDir)) {
+      echo "Creating sites dir: $sitesDir\n";
+      mkdir($sitesDir);
+    }
     $this->getSiteInfo();
     $this->createSiteDir();
     $this->updateDbConf();
@@ -157,11 +161,6 @@ class UpdateService {
   }
 
   function createSiteDir() {
-    $sitesDir = realpath(__DIR__."/".self::SITES_DIR);
-    if(!is_dir($sitesDir)) {
-      echo "Creating sites dir: $sitesDir\n";
-      mkdir($sitesDir);
-    }
     $dir = $this->getSiteDirPath();
     if(!is_dir($dir)) mkdir($dir);
     if(!is_dir("$dir/data")) mkdir("$dir/data");
