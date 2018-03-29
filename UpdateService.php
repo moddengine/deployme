@@ -157,9 +157,9 @@ class UpdateService {
   }
 
   function createSiteDir() {
-    $sitesDir = realpath(__DIR__.self::SITES_DIR);
+    $sitesDir = realpath(__DIR__."/".self::SITES_DIR);
     if(!is_dir($sitesDir)) {
-      echo "Createing dir $sitesDir\m";
+      echo "Creating sites dir: $sitesDir\n";
       mkdir($sitesDir);
     }
     $dir = $this->getSiteDirPath();
