@@ -33,7 +33,7 @@ class UpdateService {
   public $meBranch = 'udo16-webpack2';
 
   public function __construct($webRootDir = '../public_html') {
-    $this->webRoot = realpath(__DIR__ . "/$webRootDir");
+    $this->webRoot = $webRootDir;
   }
 
   function installNew() {
