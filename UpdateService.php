@@ -209,7 +209,7 @@ class UpdateService {
   function applyTemplate($template) {
     return str_replace(['__SITEID__', '__SITEDIR__', '__MEDIR__', '__MEVER__'],
       [$this->siteId, $this->getSiteDirPath(),
-        realpath(__DIR__."../moddengine.{$this->meVer}"), $this->meVer],
+        self::absPath(__DIR__,"../moddengine.{$this->meVer}"), $this->meVer],
       $template);
   }
 
