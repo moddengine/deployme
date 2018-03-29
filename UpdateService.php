@@ -81,6 +81,8 @@ class UpdateService {
           $site = trim(readline("Enter ModdEngine site id:"));
         } while(strlen($site) == 0);
         $this->siteId = $site;
+      } else {
+        echo "Configuring Site: {$this->siteId}\n";
       }
     }
   }
