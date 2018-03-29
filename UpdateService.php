@@ -45,6 +45,7 @@ class UpdateService {
     $this->getSiteInfo();
     $this->createSiteDir();
     $this->updateDbConf();
+    $this->getSiteHost();
     $this->installModdEngine();
     $this->updateAndFetch();
     $this->writeLive();
@@ -160,6 +161,11 @@ class UpdateService {
     echo 'FIXME: Create folder table, common folder, and admin folder\n';
     echo 'FIXME: Create folder Perms, every can read bldpage\n';
     echo 'FIXME: Create immix table, with new home bldpage\n';
+  }
+
+  function getSiteHost() {
+    /// @TODO Open db and get robots host for root folder
+    $this->siteHost = trim(readline("Live Hostname: "));
   }
 
   function createSiteDir() {
