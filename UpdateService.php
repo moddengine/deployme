@@ -86,8 +86,9 @@ class UpdateService {
   }
 
   function loadSiteInfo() {
-    if(is_file($this->webRoot . "/index.php")) {
-      $indexphp = file_get_contents($this->webRoot . "/index.php");
+    $indexFile = self::absPath($this->getWebRootDirPath(), "index.php");
+    if(is_file($indexFile)) {
+      $indexphp = file_get_contents($indexFile);
       if(strpos($indexphp, self::MODDENG_COMMENT) !== false &&
         preg_match('/ define\("ME_SITE", "([a-zA-Z0-9]+)"\);/', $indexphp, $m)) {
         $this->siteId = $m[1];
