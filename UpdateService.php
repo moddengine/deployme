@@ -40,16 +40,22 @@ class UpdateService {
     $this->getSiteInfo();
     $this->createSiteDir();
     $this->updateDbConf();
+    $this->installModdEngine();
     $this->updateAndFetch();
     $this->writeLive();
     $this->updateWebRoot();
   }
 
   function installModdEngine() {
+    echo "Installaing a moddengine.{$this->meVer}";
     $installDir = realpath(__DIR__ . '/..');
     chdir($installDir);
+    $update = is_dir("moddengine.{$this->meVer}");
+    if(!$update)
     system("git clone git@github.com:moddross/plugin.git moddengine.{$this->meVer}");
     chdir("moddengine.{$this->meVer}");
+    if($update)
+      system('git pull');
     system("php install.php");
   }
 
