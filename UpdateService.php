@@ -151,6 +151,8 @@ class UpdateService {
   }
 
   function createSiteDir() {
+    if(!is_dir(__DIR__.self::SITES_DIR))
+      mkdir(__DIR__.self::SITES_DIR);
     $dir = $this->getSiteDirPath();
     if(!is_dir($dir)) mkdir($dir);
     if(!is_dir("$dir/data")) mkdir("$dir/data");
