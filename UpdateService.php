@@ -123,10 +123,10 @@ class UpdateService {
       $this->siteDbUser = $siteConf['db']['user'];
       $this->siteDbConf = 'site';
     }
-    if($this->siteDbConf == 'local' && isset($localConf['db']['user'])) {
-      $this->siteDbUser = $localConf['db']['user'];
-    } elseif(isset($siteConf['db']['user'])) {
-      $this->siteDbUser = $siteConf['db']['user'];
+    if($this->siteDbConf == 'local' && isset($localConf['db']['pass'])) {
+      $this->siteDbPass = $localConf['db']['pass'];
+    } elseif(isset($siteConf['db']['pass'])) {
+      $this->siteDbPass = $siteConf['db']['pass'];
     }
     if(isset($siteConf['db']['db'])) {
       $this->siteDbName = $siteConf['db']['db'];
