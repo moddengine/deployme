@@ -236,7 +236,9 @@ CREATE TABLE `conf` (
   `namespace` VARCHAR(50) COLLATE utf8_unicode_ci NOT NULL,
   `folder` INT(64) UNSIGNED NOT NULL DEFAULT '0',
   `key` VARCHAR(100) COLLATE utf8_unicode_ci NOT NULL,
-  `value` TEXT COLLATE utf8_unicode_ci NOT NULL
+  `value` TEXT COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`namespace`,`folder`,`key`),
+  INDEX `namespace` (`namespace`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 END_CREATE
     );
