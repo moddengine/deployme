@@ -56,9 +56,9 @@ class UpdateService {
     $this->updateDbConf();
     $this->getSiteHost();
     $this->installModdEngine();
+    $this->updateWebRoot();
     $this->updateAndFetch();
     $this->writeLive();
-    $this->updateWebRoot();
   }
 
   function installModdEngine() {
