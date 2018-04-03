@@ -135,6 +135,7 @@ class UpdateService {
       $this->siteDbName = $siteConf['db']['db'];
     }
     if($forceUpdate || !$this->siteDbUser || !$this->siteDbPass || $this->siteDbName) {
+      $res = false;
       do {
         echo "MySQL Database Configuration\n";
         echo "============================\n";
@@ -149,13 +150,13 @@ class UpdateService {
           echo "MySQL Connection: FAILED - {$mysql->connect_error}\n";
         } else {
           $this->mysql = $mysql;
-          $res = $mysql->query('SELECT folderid FROM folder WHERE folderid = 0');
-          if(!$res || $res->num_rows == 0)
-            $this->createFolderTable($mysql);
           echo "MySQL Connection: Ok\n";
+          $res = $mysql->query('SELECT folderid FROM folder WHERE folderid = 0');
         }
         $ok = trim(strtolower(readline("Apply Database Settings (yes/no):")));
       } while($ok != 'y' && $ok != 'yes');
+      if($this->mysql && !$res || $res->num_rows == 0)
+        $this->createFolderTable($this->mysql);
       $siteConf['db']['db'] = $this->siteDbUser;
       if($this->siteDbConf == 'local') {
         $localConf['db']['user'] = $this->siteDbUser;
@@ -188,14 +189,14 @@ CREATE TABLE `folder` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 END_CREATE
 );
-    echo 'Created Folder Table\n';
+    echo "Created Folder Table\n";
     $db->query(<<<END_INSERT
 INSERT INTO `folder` (`folderid`, `alias`, `name`, `parentid`, `inherit`, `folderpath`, `attr`, `hostalias`, `shared`, `search`, `searchpath`, `style`) VALUES
 (0, '', 'Common', 0, 0, '', '{}', '', 0, 0, '', 1),
 (1, 'admin', 'Admin', 0, 0, 'admin', '', '', 0, 0, '', 0);
 END_INSERT
 );
-    echo 'Created Common & Admin Folders\n';
+    echo "Created Common & Admin Folders\n";
     $db->query(<<<END_CREATE
 CREATE TABLE `folderperm` (
   `folderid` int(32) UNSIGNED NOT NULL,
@@ -205,7 +206,7 @@ CREATE TABLE `folderperm` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 END_CREATE
 );
-    echo 'Created FolderPerm Table\n';
+    echo "Created FolderPerm Table\n";
     $db->query(<<<END_INSERT
 INSERT INTO `folderperm` (`folderid`, `groupid`, `typeid`, `level`) VALUES
 (0, 0, 40, 4),
@@ -228,7 +229,7 @@ INSERT INTO `folderperm` (`folderid`, `groupid`, `typeid`, `level`) VALUES
 (0, 1, 1101, 4);
 END_INSERT
 );
-    echo 'Created basic guest permissions\n';
+    echo "Created basic guest permissions\n";
     $db->query(<<<END_CREATE
 CREATE TABLE `conf` (
   `namespace` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
@@ -238,7 +239,8 @@ CREATE TABLE `conf` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 END_CREATE
 );
-    }
+    echo "Created conf (config) table\n";
+  }
 
   function getSiteHost() {
     if($this->mysql) {
