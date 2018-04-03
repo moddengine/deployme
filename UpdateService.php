@@ -249,7 +249,6 @@ END_CREATE
 
 
     }
-    /// @TODO Open db and get robots host for root folder
     $v = trim(readline("Live Hostname ($this->siteHost): "));
     if(strlen($v) > 0) $this->siteHost = $v;
     if($this->mysql) {
