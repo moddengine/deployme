@@ -32,6 +32,9 @@ class UpdateService {
   public $meVer = 'a';
   public $meBranch = 'udo16-webpack2';
 
+  /** @var \mysqli|null */
+  public $mysql = null;
+
   public function __construct($webRootDir = '../public_html') {
     $this->webRoot = $webRootDir;
   }
@@ -145,12 +148,13 @@ class UpdateService {
         if($mysql->connect_error) {
           echo "MySQL Connection: FAILED - {$mysql->connect_error}\n";
         } else {
+          $this->mysql = $mysql;
           $res = $mysql->query('SELECT folderid FROM folder WHERE folderid = 0');
           if(!$res || $res->num_rows == 0)
             $this->createFolderTable($mysql);
           echo "MySQL Connection: Ok\n";
         }
-        $ok = trim(strtolower(readline("Apply Database Settions (yes/no):")));
+        $ok = trim(strtolower(readline("Apply Database Settings (yes/no):")));
       } while($ok != 'y' && $ok != 'yes');
       $siteConf['db']['db'] = $this->siteDbUser;
       if($this->siteDbConf == 'local') {
@@ -225,11 +229,34 @@ INSERT INTO `folderperm` (`folderid`, `groupid`, `typeid`, `level`) VALUES
 END_INSERT
 );
     echo 'Created basic guest permissions\n';
+    $db->query(<<<END_CREATE
+CREATE TABLE `conf` (
+  `namespace` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `folder` int(64) UNSIGNED NOT NULL DEFAULT '0',
+  `key` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `value` text COLLATE utf8_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+END_CREATE
+);
     }
 
   function getSiteHost() {
+    if($this->mysql) {
+      $r = $this->mysql->query("SELECT value FROM conf WHERE folder = 0 
+          AND namespace = 'siteconfig' and `key` = 'robotshost'");
+      if($r && $row = $r->fetch_assoc())
+        $this->siteHost = $row['value'];
+
+
+    }
     /// @TODO Open db and get robots host for root folder
-    $this->siteHost = trim(readline("Live Hostname: "));
+    $v = trim(readline("Live Hostname ($this->siteHost): "));
+    if(strlen($v) > 0) $this->siteHost = $v;
+    if($this->mysql) {
+      $value = $this->mysql->escape_string($this->siteHost);
+      $this->mysql->query("INSERT INTO `conf` (`namespace`,`folder`,`key`,`value`) ".
+        "VALUES ('siteconfig', '0','robotshost', '$value') ON DUPLICATE KEY UPDATE `value`='$value';");
+    }
   }
 
   function createSiteDir() {
