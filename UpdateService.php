@@ -1,4 +1,5 @@
 <?php
+
 namespace UpdateME;
 
 ini_set('display_errors', '1');
@@ -40,12 +41,12 @@ class UpdateService {
   }
 
   function installNew() {
-    $sitesDir = self::absPath(__DIR__,self::SITES_DIR);
+    $sitesDir = self::absPath(__DIR__, self::SITES_DIR);
     if(!is_dir($sitesDir)) {
       echo "Creating sites dir: $sitesDir\n";
       mkdir($sitesDir);
     }
-    $sitesDir = self::absPath(__DIR__,self::SITES_DIR,'_local');
+    $sitesDir = self::absPath(__DIR__, self::SITES_DIR, '_local');
     if(!is_dir($sitesDir)) {
       echo "Creating local config dir: $sitesDir\n";
       mkdir($sitesDir);
@@ -66,7 +67,7 @@ class UpdateService {
     chdir($installDir);
     $update = is_dir("moddengine.{$this->meVer}");
     if(!$update)
-    system("git clone git@github.com:moddross/moddengine.git moddengine.{$this->meVer}");
+      system("git clone git@github.com:moddross/moddengine.git moddengine.{$this->meVer}");
     chdir("moddengine.{$this->meVer}");
     system("git checkout {$this->meBranch}");
     if($update)
@@ -104,11 +105,11 @@ class UpdateService {
   }
 
   function getSiteDirPath() {
-    return self::absPath(__DIR__,self::SITES_DIR, $this->siteId);
+    return self::absPath(__DIR__, self::SITES_DIR, $this->siteId);
   }
 
   function getWebRootDirPath() {
-    return self::absPath(__DIR__,$this->webRoot);
+    return self::absPath(__DIR__, $this->webRoot);
   }
 
 
@@ -174,38 +175,38 @@ class UpdateService {
     $db->query('SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";');
     $db->query(<<<END_CREATE
 CREATE TABLE `folder` (
-  `folderid` int(32) UNSIGNED NOT NULL,
-  `alias` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `parentid` int(31) UNSIGNED NOT NULL DEFAULT '0',
-  `inherit` tinyint(2) UNSIGNED NOT NULL DEFAULT '1',
-  `folderpath` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
-  `attr` text COLLATE utf8_unicode_ci NOT NULL,
-  `hostalias` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
-  `shared` tinyint(2) UNSIGNED NOT NULL DEFAULT '0',
-  `search` tinyint(2) UNSIGNED NOT NULL DEFAULT '0',
-  `searchpath` varchar(250) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `style` tinyint(2) UNSIGNED NOT NULL DEFAULT '0'
+  `folderid` INT(32) UNSIGNED NOT NULL,
+  `alias` VARCHAR(100) COLLATE utf8_unicode_ci NOT NULL,
+  `name` VARCHAR(100) COLLATE utf8_unicode_ci NOT NULL,
+  `parentid` INT(31) UNSIGNED NOT NULL DEFAULT '0',
+  `inherit` TINYINT(2) UNSIGNED NOT NULL DEFAULT '1',
+  `folderpath` VARCHAR(250) COLLATE utf8_unicode_ci NOT NULL,
+  `attr` TEXT COLLATE utf8_unicode_ci NOT NULL,
+  `hostalias` VARCHAR(250) COLLATE utf8_unicode_ci NOT NULL,
+  `shared` TINYINT(2) UNSIGNED NOT NULL DEFAULT '0',
+  `search` TINYINT(2) UNSIGNED NOT NULL DEFAULT '0',
+  `searchpath` VARCHAR(250) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `style` TINYINT(2) UNSIGNED NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 END_CREATE
-);
+    );
     echo "Created Folder Table\n";
     $db->query(<<<END_INSERT
 INSERT INTO `folder` (`folderid`, `alias`, `name`, `parentid`, `inherit`, `folderpath`, `attr`, `hostalias`, `shared`, `search`, `searchpath`, `style`) VALUES
 (0, '', 'Common', 0, 0, '', '{}', '', 0, 0, '', 1),
 (1, 'admin', 'Admin', 0, 0, 'admin', '', '', 0, 0, '', 0);
 END_INSERT
-);
+    );
     echo "Created Common & Admin Folders\n";
     $db->query(<<<END_CREATE
 CREATE TABLE `folderperm` (
-  `folderid` int(32) UNSIGNED NOT NULL,
-  `groupid` bigint(64) UNSIGNED NOT NULL,
-  `typeid` int(16) UNSIGNED NOT NULL,
-  `level` tinyint(8) UNSIGNED NOT NULL
+  `folderid` INT(32) UNSIGNED NOT NULL,
+  `groupid` BIGINT(64) UNSIGNED NOT NULL,
+  `typeid` INT(16) UNSIGNED NOT NULL,
+  `level` TINYINT(8) UNSIGNED NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 END_CREATE
-);
+    );
     echo "Created FolderPerm Table\n";
     $db->query(<<<END_INSERT
 INSERT INTO `folderperm` (`folderid`, `groupid`, `typeid`, `level`) VALUES
@@ -228,24 +229,24 @@ INSERT INTO `folderperm` (`folderid`, `groupid`, `typeid`, `level`) VALUES
 (0, 0, 1101, 4),
 (0, 1, 1101, 4);
 END_INSERT
-);
+    );
     echo "Created basic guest permissions\n";
     $db->query(<<<END_CREATE
 CREATE TABLE `conf` (
-  `namespace` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `folder` int(64) UNSIGNED NOT NULL DEFAULT '0',
-  `key` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `value` text COLLATE utf8_unicode_ci NOT NULL
+  `namespace` VARCHAR(50) COLLATE utf8_unicode_ci NOT NULL,
+  `folder` INT(64) UNSIGNED NOT NULL DEFAULT '0',
+  `key` VARCHAR(100) COLLATE utf8_unicode_ci NOT NULL,
+  `value` TEXT COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 END_CREATE
-);
+    );
     echo "Created conf (config) table\n";
   }
 
   function getSiteHost() {
     if($this->mysql) {
       $r = $this->mysql->query("SELECT value FROM conf WHERE folder = 0 
-          AND namespace = 'siteconfig' and `key` = 'robotshost'");
+          AND namespace = 'siteconfig' AND `key` = 'robotshost'");
       if($r && $row = $r->fetch_assoc())
         $this->siteHost = $row['value'];
 
@@ -255,7 +256,7 @@ END_CREATE
     if(strlen($v) > 0) $this->siteHost = $v;
     if($this->mysql) {
       $value = $this->mysql->escape_string($this->siteHost);
-      $this->mysql->query("INSERT INTO `conf` (`namespace`,`folder`,`key`,`value`) ".
+      $this->mysql->query("INSERT INTO `conf` (`namespace`,`folder`,`key`,`value`) " .
         "VALUES ('siteconfig', '0','robotshost', '$value') ON DUPLICATE KEY UPDATE `value`='$value';");
     }
   }
@@ -273,9 +274,9 @@ END_CREATE
 
   function updateAndFetch() {
     echo "Creating updated.{$this->meVer} file\n";
-    touch($this->getSiteDirPath()."/updated.{$this->meVer}");
+    touch($this->getSiteDirPath() . "/updated.{$this->meVer}");
     echo "Fetching Admin Base\n";
-    file_get_contents('https://'.str_replace('.','_',$this->siteHost).".myudo.net/admin/");
+    file_get_contents('https://' . str_replace('.', '_', $this->siteHost) . ".myudo.net/admin/");
   }
 
   function writeLive() {
@@ -288,16 +289,21 @@ END_CREATE
     $root = $this->getWebRootDirPath();
     $livehtaccess = is_file("$root/.htaccess") ?
       file_get_contents("$root/.htaccess") : "";
-    if(strpos($livehtaccess, self::MODDENG_COMMENT) !== false) {
+    if(strpos($livehtaccess, self::MODDENG_COMMENT) === false) {
       //Move Old Webroot - not moddengine by updateme
-      rename("$root", "$root.old");
+      $oldRoot = "$root.old";
+      $oldId = 1;
+      while(is_dir($oldRoot))
+        $oldRoot = "$root.old." . $oldId++;
+      echo "Relocating old $root to $oldRoot\n";
+      rename("$root", $oldRoot);
       mkdir($root);
     }
-    $htaccess = file_get_contents(__DIR__."/template/.htaccess");
+    $htaccess = file_get_contents(__DIR__ . "/template/.htaccess");
     file_put_contents("$root/.htaccess", $this->applyTemplate($htaccess));
-    $indexphp = file_get_contents(__DIR__."/template/index.php");
+    $indexphp = file_get_contents(__DIR__ . "/template/index.php");
     file_put_contents("$root/index.php", $this->applyTemplate($indexphp));
-    file_put_contents($this->getSiteDirPath()."/live", $this->meVer);
+    file_put_contents($this->getSiteDirPath() . "/live", $this->meVer);
   }
 
   /**
@@ -309,19 +315,19 @@ END_CREATE
   function applyTemplate($template) {
     return str_replace(['__SITEID__', '__SITEDIR__', '__MEDIR__', '__MEVER__'],
       [$this->siteId, $this->getSiteDirPath(),
-        self::absPath(__DIR__,"../moddengine.{$this->meVer}"), $this->meVer],
+        self::absPath(__DIR__, "../moddengine.{$this->meVer}"), $this->meVer],
       $template);
   }
 
 
   static function absPath() {
     $path = implode(DIRECTORY_SEPARATOR, func_get_args());
-    $path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path);
+    $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
     $parts = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
     $absolutes = $path[0] == DIRECTORY_SEPARATOR ? [''] : [];
-    foreach ($parts as $part) {
-      if ('.' == $part) continue;
-      if ('..' == $part) {
+    foreach($parts as $part) {
+      if('.' == $part) continue;
+      if('..' == $part) {
         array_pop($absolutes);
       } else {
         $absolutes[] = $part;
