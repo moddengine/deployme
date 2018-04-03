@@ -72,7 +72,7 @@ class UpdateService {
     system("git checkout {$this->meBranch}");
     if($update)
       system('git pull');
-    system("php install.php --skip-config");
+    system("php install.php --skip-config --branch {$this->meBranch}");
   }
 
 
