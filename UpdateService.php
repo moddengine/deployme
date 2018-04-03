@@ -61,7 +61,7 @@ class UpdateService {
   }
 
   function installModdEngine() {
-    echo "Installaing a moddengine.{$this->meVer}";
+    echo "Installaing a moddengine.{$this->meVer}\n";
     $installDir = realpath(__DIR__ . '/..');
     chdir($installDir);
     $update = is_dir("moddengine.{$this->meVer}");
@@ -71,7 +71,7 @@ class UpdateService {
     system("git checkout {$this->meBranch}");
     if($update)
       system('git pull');
-    system("php install.php");
+    system("php install.php --skip-config");
   }
 
 
