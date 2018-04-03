@@ -276,6 +276,7 @@ END_CREATE
     if(!is_dir("$dir/attach")) mkdir("$dir/attach");
     if(!is_file("$dir/plug.{$this->meVer}.json"))
       copy(__DIR__ . "/template/plug.json", "$dir/plug.{$this->meVer}.json");
+    file_put_contents("$dir/webroot.txt", $this->getWebRootDirPath());
     echo "Site directory created: $dir\n";
   }
 
@@ -283,15 +284,18 @@ END_CREATE
     echo "Creating updated.{$this->meVer} file\n";
     touch($this->getSiteDirPath() . "/updated.{$this->meVer}");
     echo "Fetching Admin Login Page:";
-    file_get_contents('https://' . str_replace('.', '_', $this->siteHost) . ".myudo.net/admin/");
-    echo " Done.\n";
-    echo "Compile Javascript for Site\n";
-    chdir($installDir = self::absPath(__DIR__ . '/../moddengine.' . $this->meVer));
-    putenv("ME_DIR={$installDir}");
-    putenv("ME_SITE={$this->siteId}");
-    putenv("ME_SITE_DIR={$this->getSiteDirPath()}");
-    putenv("ME_VER={$this->meVer}");
-    system('yarn run build');
+    if(file_get_contents('https://' . str_replace('.', '_', $this->siteHost) . ".myudo.net/admin/")) {
+      echo " Done.\n";
+      echo "Compile Javascript for Site\n";
+      chdir($installDir = self::absPath(__DIR__ . '/../moddengine.' . $this->meVer));
+      putenv("ME_DIR={$installDir}");
+      putenv("ME_SITE={$this->siteId}");
+      putenv("ME_SITE_DIR={$this->getSiteDirPath()}");
+      putenv("ME_VER={$this->meVer}");
+      system('yarn run build');
+    } else {
+      die("Failed.\n");
+    }
   }
 
   function writeLive() {
