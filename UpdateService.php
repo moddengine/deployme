@@ -166,10 +166,66 @@ class UpdateService {
   }
 
   function createFolderTable(\mysqli $db) {
-    echo 'FIXME: Create folder table, common folder, and admin folder\n';
-    echo 'FIXME: Create folder Perms, every can read bldpage\n';
-    echo 'FIXME: Create immix table, with new home bldpage\n';
-  }
+    $db->query('SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";');
+    $db->query(<<<END_CREATE
+CREATE TABLE `folder` (
+  `folderid` int(32) UNSIGNED NOT NULL,
+  `alias` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `parentid` int(31) UNSIGNED NOT NULL DEFAULT '0',
+  `inherit` tinyint(2) UNSIGNED NOT NULL DEFAULT '1',
+  `folderpath` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
+  `attr` text COLLATE utf8_unicode_ci NOT NULL,
+  `hostalias` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
+  `shared` tinyint(2) UNSIGNED NOT NULL DEFAULT '0',
+  `search` tinyint(2) UNSIGNED NOT NULL DEFAULT '0',
+  `searchpath` varchar(250) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `style` tinyint(2) UNSIGNED NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+END_CREATE
+);
+    echo 'Created Folder Table\n';
+    $db->query(<<<END_INSERT
+INSERT INTO `folder` (`folderid`, `alias`, `name`, `parentid`, `inherit`, `folderpath`, `attr`, `hostalias`, `shared`, `search`, `searchpath`, `style`) VALUES
+(0, '', 'Common', 0, 0, '', '{}', '', 0, 0, '', 1),
+(1, 'admin', 'Admin', 0, 0, 'admin', '', '', 0, 0, '', 0);
+END_INSERT
+);
+    echo 'Created Common & Admin Folders\n';
+    $db->query(<<<END_CREATE
+CREATE TABLE `folderperm` (
+  `folderid` int(32) UNSIGNED NOT NULL,
+  `groupid` bigint(64) UNSIGNED NOT NULL,
+  `typeid` int(16) UNSIGNED NOT NULL,
+  `level` tinyint(8) UNSIGNED NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+END_CREATE
+);
+    echo 'Created FolderPerm Table\n';
+    $db->query(<<<END_INSERT
+INSERT INTO `folderperm` (`folderid`, `groupid`, `typeid`, `level`) VALUES
+(0, 0, 40, 4),
+(0, 1, 40, 4),
+(0, 0, 41, 4),
+(0, 1, 41, 4),
+(0, 0, 44, 4),
+(0, 1, 44, 4),
+(0, 0, 45, 4),
+(0, 1, 45, 4),
+(0, 0, 47, 4),
+(0, 1, 47, 4),
+(0, 0, 1001, 4),
+(0, 1, 1001, 4),
+(0, 0, 1010, 4),
+(0, 1, 1010, 4),
+(0, 0, 1100, 4),
+(0, 1, 1100, 4),
+(0, 0, 1101, 4),
+(0, 1, 1101, 4);
+END_INSERT
+);
+    echo 'Created basic guest permissions\n';
+    }
 
   function getSiteHost() {
     /// @TODO Open db and get robots host for root folder
