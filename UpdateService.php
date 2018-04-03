@@ -63,7 +63,7 @@ class UpdateService {
 
   function installModdEngine() {
     echo "Installaing a moddengine.{$this->meVer}\n";
-    $installDir = realpath(__DIR__ . '/..');
+    $installDir = self::absPath(__DIR__ . '/..');
     chdir($installDir);
     $update = is_dir("moddengine.{$this->meVer}");
     if(!$update)
@@ -175,18 +175,18 @@ class UpdateService {
     $db->query('SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";');
     $db->query(<<<END_CREATE
 CREATE TABLE `folder` (
- `folderid` int(32) unsigned NOT NULL AUTO_INCREMENT,
- `alias` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
- `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
- `parentid` int(31) unsigned NOT NULL DEFAULT '0',
- `inherit` tinyint(2) unsigned NOT NULL DEFAULT '1',
- `folderpath` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
- `hostalias` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
- `shared` tinyint(2) unsigned NOT NULL DEFAULT '0',
- `attr` text COLLATE utf8_unicode_ci NOT NULL,
- `style` tinyint(2) unsigned NOT NULL DEFAULT '0',
- `search` tinyint(2) unsigned NOT NULL DEFAULT '0',
- `searchpath` varchar(250) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+ `folderid` INT(32) UNSIGNED NOT NULL AUTO_INCREMENT,
+ `alias` VARCHAR(100) COLLATE utf8_unicode_ci NOT NULL,
+ `name` VARCHAR(100) COLLATE utf8_unicode_ci NOT NULL,
+ `parentid` INT(31) UNSIGNED NOT NULL DEFAULT '0',
+ `inherit` TINYINT(2) UNSIGNED NOT NULL DEFAULT '1',
+ `folderpath` VARCHAR(250) COLLATE utf8_unicode_ci NOT NULL,
+ `hostalias` VARCHAR(250) COLLATE utf8_unicode_ci NOT NULL,
+ `shared` TINYINT(2) UNSIGNED NOT NULL DEFAULT '0',
+ `attr` TEXT COLLATE utf8_unicode_ci NOT NULL,
+ `style` TINYINT(2) UNSIGNED NOT NULL DEFAULT '0',
+ `search` TINYINT(2) UNSIGNED NOT NULL DEFAULT '0',
+ `searchpath` VARCHAR(250) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
  PRIMARY KEY (`folderid`),
  KEY `parentid` (`parentid`),
  KEY `alias` (`alias`),
@@ -204,10 +204,10 @@ END_INSERT
     echo "Created Common & Admin Folders\n";
     $db->query(<<<END_CREATE
 CREATE TABLE `folderperm` (
- `folderid` int(32) unsigned NOT NULL,
- `groupid` bigint(64) unsigned NOT NULL,
- `typeid` int(16) unsigned NOT NULL,
- `level` tinyint(8) unsigned NOT NULL,
+ `folderid` INT(32) UNSIGNED NOT NULL,
+ `groupid` BIGINT(64) UNSIGNED NOT NULL,
+ `typeid` INT(16) UNSIGNED NOT NULL,
+ `level` TINYINT(8) UNSIGNED NOT NULL,
  PRIMARY KEY (`folderid`,`groupid`,`typeid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 END_CREATE
@@ -238,10 +238,10 @@ END_INSERT
     echo "Created basic guest permissions\n";
     $db->query(<<<END_CREATE
 CREATE TABLE `conf` (
- `namespace` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
- `folder` int(64) unsigned NOT NULL DEFAULT '0',
- `key` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
- `value` text COLLATE utf8_unicode_ci NOT NULL,
+ `namespace` VARCHAR(50) COLLATE utf8_unicode_ci NOT NULL,
+ `folder` INT(64) UNSIGNED NOT NULL DEFAULT '0',
+ `key` VARCHAR(100) COLLATE utf8_unicode_ci NOT NULL,
+ `value` TEXT COLLATE utf8_unicode_ci NOT NULL,
  PRIMARY KEY (`namespace`,`folder`,`key`),
  KEY `namespace` (`namespace`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
@@ -282,8 +282,16 @@ END_CREATE
   function updateAndFetch() {
     echo "Creating updated.{$this->meVer} file\n";
     touch($this->getSiteDirPath() . "/updated.{$this->meVer}");
-    echo "Fetching Admin Base\n";
+    echo "Fetching Admin Login Page:";
     file_get_contents('https://' . str_replace('.', '_', $this->siteHost) . ".myudo.net/admin/");
+    echo " Done.\n";
+    echo "Compile Javascript for Site\n";
+    chdir($installDir = self::absPath(__DIR__ . '/../moddengine.' . $this->meVer));
+    putenv("ME_DIR={$installDir}");
+    putenv("ME_SITE={$this->siteId}");
+    putenv("ME_SITE_DIR={$this->getSiteDirPath()}");
+    putenv("ME_VER={$this->meVer}");
+    system('yarn run build');
   }
 
   function writeLive() {
