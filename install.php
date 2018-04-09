@@ -9,7 +9,7 @@ function install() {
   chdir(__DIR__);
   system('git pull');
   system('composer install');
-  require_once('loader.php');
+  require_once(__DIR__.'/loader.php');
   $us = new UpdateService();
   $us->installNew();
 }
