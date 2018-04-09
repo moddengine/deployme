@@ -1,7 +1,7 @@
 <?php
 
 
-use ModdEngine\DeployME\UpdateService;
+use ModdEngine\Deploy\UpdateService;
 
 
 function install() {

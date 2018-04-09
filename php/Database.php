@@ -1,6 +1,6 @@
 <?php
 
-namespace ModdEngine\DeployME;
+namespace ModdEngine\Deploy;
 
 use mysqli;
 
