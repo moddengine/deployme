@@ -1,0 +1,15 @@
+{
+    "name": "moddengine/deployme",
+    "description": "ModdEngine Deployment Utils",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Chris Seufert",
+            "email": "chris@modd.com.au"
+        }
+    ],
+    "require": {
+        "aura/autoload": "^2.0"
+    }
+}
