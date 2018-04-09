@@ -2,7 +2,7 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-use ModdEngine\Deploy\UpdateService;
+use ModdEngine\Deploy\DeployService;
 
 
 function install() {
@@ -10,8 +10,8 @@ function install() {
   system('git pull');
   system('composer install');
   require_once(__DIR__.'/loader.php');
-  $us = new UpdateService();
-  $us->installNew();
+  $ins = new \ModdEngine\Deploy\InstallService();
+  $ins->installNew();
 }
 
 install();

@@ -16,7 +16,7 @@ if(!function_exists('readline')) {
 }
 
 
-class UpdateService {
+class DeployService {
 
   const SITES_DIR = '../../sites.me';
   const MODDENG_COMMENT = '# Managed by moddengine updateme';
@@ -41,26 +41,6 @@ class UpdateService {
     $this->db = new Database;
   }
 
-  function installNew() {
-    $sitesDir = self::absPath(__DIR__, self::SITES_DIR);
-    if(!is_dir($sitesDir)) {
-      echo "Creating sites dir: $sitesDir\n";
-      mkdir($sitesDir);
-    }
-    $sitesDir = self::absPath(__DIR__, self::SITES_DIR, '_local');
-    if(!is_dir($sitesDir)) {
-      echo "Creating local config dir: $sitesDir\n";
-      mkdir($sitesDir);
-    }
-    $this->getSiteInfo();
-    $this->createSiteDir();
-    $this->updateDbConf();
-    $this->getSiteHost();
-    $this->installModdEngine();
-    $this->updateWebRoot();
-    $this->updateAndFetch();
-    $this->writeLive();
-  }
 
   function installModdEngine() {
     echo "Installaing a moddengine.{$this->meVer}\n";
