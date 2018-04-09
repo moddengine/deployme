@@ -177,14 +177,8 @@ class UpdateService {
 
 
   function getSiteHost() {
-    if($this->mysql) {
-      $r = $this->mysql->query("SELECT value FROM conf WHERE folder = 0 
-          AND namespace = 'siteconfig' AND `key` = 'robotshost'");
-      if($r && $row = $r->fetch_assoc())
-        $this->siteHost = $row['value'];
-
-
-    }
+    if($host = $this->db->getSiteHost())
+      $this->siteHost = $host:
     $v = trim(readline("Live Hostname ($this->siteHost): "));
     if(strlen($v) > 0) $this->siteHost = $v;
     if($this->db) {

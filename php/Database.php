@@ -134,10 +134,19 @@ END_CREATE
 
   function setRobotsHost($host) {
     if(!$this->link) return false;
-    $host = $this->mysql->escape_string($host);
-    $this->mysql->query("INSERT INTO `conf` (`namespace`,`folder`,`key`,`value`) " .
+    $host = $this->link->escape_string($host);
+    $this->link->query("INSERT INTO `conf` (`namespace`,`folder`,`key`,`value`) " .
       "VALUES ('siteconfig', '0','robotshost', '$host') ON DUPLICATE KEY UPDATE `value`='$value';");
     return true;
+  }
+
+  function getSiteHost() {
+    if(!$this->link) return '';
+    $r = $this->link->query("SELECT value FROM conf WHERE folder = 0 
+          AND namespace = 'siteconfig' AND `key` = 'robotshost'");
+    if($r && $row = $r->fetch_assoc())
+      return $row['value'];
+    return '';
   }
 
 }
