@@ -187,10 +187,8 @@ class UpdateService {
     }
     $v = trim(readline("Live Hostname ($this->siteHost): "));
     if(strlen($v) > 0) $this->siteHost = $v;
-    if($this->mysql) {
-      $value = $this->mysql->escape_string($this->siteHost);
-      $this->mysql->query("INSERT INTO `conf` (`namespace`,`folder`,`key`,`value`) " .
-        "VALUES ('siteconfig', '0','robotshost', '$value') ON DUPLICATE KEY UPDATE `value`='$value';");
+    if($this->db) {
+      $this->db->setRobotsHost($this->siteHost);
     }
   }
 

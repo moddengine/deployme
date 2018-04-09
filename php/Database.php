@@ -132,4 +132,12 @@ END_CREATE
     echo "Created conf (config) table\n";
   }
 
+  function setRobotsHost($host) {
+    if(!$this->link) return false;
+    $host = $this->mysql->escape_string($host);
+    $this->mysql->query("INSERT INTO `conf` (`namespace`,`folder`,`key`,`value`) " .
+      "VALUES ('siteconfig', '0','robotshost', '$host') ON DUPLICATE KEY UPDATE `value`='$value';");
+    return true;
+  }
+
 }
