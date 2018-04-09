@@ -21,8 +21,8 @@ class Database {
    * @return bool
    */
   function connect($user, $pass) {
-    $link = new mysqli('localhost',$user, $pass);
-    if($link) {
+    $link = @new mysqli('localhost',$user, $pass);
+    if(!$link->connect_error) {
       $this->link = $link;
       return true;
     } else {
