@@ -1,6 +1,6 @@
 <?php
 
-namespace DeployME;
+namespace ModdEngine\DeployME;
 
 ini_set('display_errors', '1');
 ini_set('error_reporting', E_ALL);
@@ -33,11 +33,12 @@ class UpdateService {
   public $meVer = 'a';
   public $meBranch = 'udo16-webpack2';
 
-  /** @var \mysqli|null */
-  public $mysql = null;
+  /** @var Database */
+  public $db;
 
   public function __construct($webRootDir = '../public_html') {
     $this->webRoot = $webRootDir;
+    $this->db = new Database;
   }
 
   function installNew() {
@@ -63,7 +64,7 @@ class UpdateService {
 
   function installModdEngine() {
     echo "Installaing a moddengine.{$this->meVer}\n";
-    $installDir = self::absPath(__DIR__ . '/..');
+    $installDir = self::absPath(__DIR__ . '/www');
     chdir($installDir);
     $update = is_dir("moddengine.{$this->meVer}");
     if(!$update)
@@ -115,8 +116,8 @@ class UpdateService {
 
   function updateDbConf($forceUpdate = false) {
     $this->getSiteInfo();
-    $localConfFile = __DIR__ . "/" . self::SITES_DIR . "/_local/conf.json";
-    $siteConfFile = __DIR__ . "/" . self::SITES_DIR . "/{$this->siteId}/conf.json";
+    $localConfFile = __DIR__ . "UpdateService.php/" . self::SITES_DIR . "/_local/conf.json";
+    $siteConfFile = __DIR__ . "UpdateService.php/" . self::SITES_DIR . "/{$this->siteId}/conf.json";
     $localConf = is_file($localConfFile) ?
       json_decode(file_get_contents($localConfFile), true) : [];
     $siteConf = is_file($siteConfFile) ?
@@ -136,7 +137,7 @@ class UpdateService {
       $this->siteDbName = $siteConf['db']['db'];
     }
     if($forceUpdate || !$this->siteDbUser || !$this->siteDbPass || $this->siteDbName) {
-      $res = false;
+      $populate = false;
       do {
         echo "MySQL Database Configuration\n";
         echo "============================\n";
@@ -146,18 +147,20 @@ class UpdateService {
         if(strlen($v) !== 0) $this->siteDbPass = $v;
         $v = trim(readline("Database Name ({$this->siteDbName}): "));
         if(strlen($v) !== 0) $this->siteDbName = $v;
-        $mysql = new \mysqli('localhost', $this->siteDbUser, $this->siteDbPass, $this->siteDbName);
-        if($mysql->connect_error) {
-          echo "MySQL Connection: FAILED - {$mysql->connect_error}\n";
+        $connect = $this->db->connect($this->siteDbUser, $this->siteDbPass);
+        $select = $this->db->switchTo($this->siteDbName);
+        if(!$connect) {
+          echo "MySQL Connection: FAILED - Bad user/pass\n";
+        } elseif(!$select) {
+          echo "MySQL Connection: FAILED - Bad database name\n";
         } else {
-          $this->mysql = $mysql;
           echo "MySQL Connection: Ok\n";
-          $res = $mysql->query('SELECT folderid FROM folder WHERE folderid = 0');
+          $populate = $this->db->isEmpty();
         }
         $ok = trim(strtolower(readline("Apply Database Settings (yes/no):")));
       } while($ok != 'y' && $ok != 'yes');
-      if($this->mysql && !$res || $res->num_rows == 0)
-        $this->createFolderTable($this->mysql);
+      if($populate)
+        $this->db->createBaseTables();
       $siteConf['db']['db'] = $this->siteDbUser;
       if($this->siteDbConf == 'local') {
         $localConf['db']['user'] = $this->siteDbUser;
@@ -171,84 +174,7 @@ class UpdateService {
     }
   }
 
-  function createFolderTable(\mysqli $db) {
-    $db->query('SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";');
-    $db->query(<<<END_CREATE
-CREATE TABLE `folder` (
- `folderid` INT(32) UNSIGNED NOT NULL AUTO_INCREMENT,
- `alias` VARCHAR(100) COLLATE utf8_unicode_ci NOT NULL,
- `name` VARCHAR(100) COLLATE utf8_unicode_ci NOT NULL,
- `parentid` INT(31) UNSIGNED NOT NULL DEFAULT '0',
- `inherit` TINYINT(2) UNSIGNED NOT NULL DEFAULT '1',
- `folderpath` VARCHAR(250) COLLATE utf8_unicode_ci NOT NULL,
- `hostalias` VARCHAR(250) COLLATE utf8_unicode_ci NOT NULL,
- `shared` TINYINT(2) UNSIGNED NOT NULL DEFAULT '0',
- `attr` TEXT COLLATE utf8_unicode_ci NOT NULL,
- `style` TINYINT(2) UNSIGNED NOT NULL DEFAULT '0',
- `search` TINYINT(2) UNSIGNED NOT NULL DEFAULT '0',
- `searchpath` VARCHAR(250) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
- PRIMARY KEY (`folderid`),
- KEY `parentid` (`parentid`),
- KEY `alias` (`alias`),
- KEY `folderpath` (`folderpath`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
-END_CREATE
-    );
-    echo "Created Folder Table\n";
-    $db->query(<<<END_INSERT
-INSERT INTO `folder` (`folderid`, `alias`, `name`, `parentid`, `inherit`, `folderpath`, `attr`, `hostalias`, `shared`, `search`, `searchpath`, `style`) VALUES
-(0, '', 'Common', 0, 0, '', '{}', '', 0, 0, '', 1),
-(1, 'admin', 'Admin', 0, 0, 'admin', '', '', 0, 0, '', 0);
-END_INSERT
-    );
-    echo "Created Common & Admin Folders\n";
-    $db->query(<<<END_CREATE
-CREATE TABLE `folderperm` (
- `folderid` INT(32) UNSIGNED NOT NULL,
- `groupid` BIGINT(64) UNSIGNED NOT NULL,
- `typeid` INT(16) UNSIGNED NOT NULL,
- `level` TINYINT(8) UNSIGNED NOT NULL,
- PRIMARY KEY (`folderid`,`groupid`,`typeid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
-END_CREATE
-    );
-    echo "Created FolderPerm Table\n";
-    $db->query(<<<END_INSERT
-INSERT INTO `folderperm` (`folderid`, `groupid`, `typeid`, `level`) VALUES
-(0, 0, 40, 4),
-(0, 1, 40, 4),
-(0, 0, 41, 4),
-(0, 1, 41, 4),
-(0, 0, 44, 4),
-(0, 1, 44, 4),
-(0, 0, 45, 4),
-(0, 1, 45, 4),
-(0, 0, 47, 4),
-(0, 1, 47, 4),
-(0, 0, 1001, 4),
-(0, 1, 1001, 4),
-(0, 0, 1010, 4),
-(0, 1, 1010, 4),
-(0, 0, 1100, 4),
-(0, 1, 1100, 4),
-(0, 0, 1101, 4),
-(0, 1, 1101, 4);
-END_INSERT
-    );
-    echo "Created basic guest permissions\n";
-    $db->query(<<<END_CREATE
-CREATE TABLE `conf` (
- `namespace` VARCHAR(50) COLLATE utf8_unicode_ci NOT NULL,
- `folder` INT(64) UNSIGNED NOT NULL DEFAULT '0',
- `key` VARCHAR(100) COLLATE utf8_unicode_ci NOT NULL,
- `value` TEXT COLLATE utf8_unicode_ci NOT NULL,
- PRIMARY KEY (`namespace`,`folder`,`key`),
- KEY `namespace` (`namespace`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
-END_CREATE
-    );
-    echo "Created conf (config) table\n";
-  }
+
 
   function getSiteHost() {
     if($this->mysql) {
