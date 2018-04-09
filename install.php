@@ -1,7 +1,7 @@
 <?php
 
 
-namespace UpdateME;
+namespace DeployME;
 
 
 function install() {
