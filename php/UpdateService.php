@@ -178,7 +178,7 @@ class UpdateService {
 
   function getSiteHost() {
     if($host = $this->db->getSiteHost())
-      $this->siteHost = $host:
+      $this->siteHost = $host;
     $v = trim(readline("Live Hostname ($this->siteHost): "));
     if(strlen($v) > 0) $this->siteHost = $v;
     if($this->db) {
