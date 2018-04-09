@@ -18,7 +18,7 @@ if(!function_exists('readline')) {
 
 class UpdateService {
 
-  const SITES_DIR = '../sites.me';
+  const SITES_DIR = '../../sites.me';
   const MODDENG_COMMENT = '# Managed by moddengine updateme';
 
   public $siteId = null;
@@ -36,7 +36,7 @@ class UpdateService {
   /** @var Database */
   public $db;
 
-  public function __construct($webRootDir = '../public_html') {
+  public function __construct($webRootDir = '../../public_html') {
     $this->webRoot = $webRootDir;
     $this->db = new Database;
   }
@@ -199,7 +199,7 @@ class UpdateService {
     if(!is_dir("$dir/data")) mkdir("$dir/data");
     if(!is_dir("$dir/attach")) mkdir("$dir/attach");
     if(!is_file("$dir/plug.{$this->meVer}.json"))
-      copy(__DIR__ . "/template/plug.json", "$dir/plug.{$this->meVer}.json");
+      copy(__DIR__ . "/../template/plug.json", "$dir/plug.{$this->meVer}.json");
     file_put_contents("$dir/webroot.txt", $this->getWebRootDirPath());
     echo "Site directory created: $dir\n";
   }
@@ -242,9 +242,9 @@ class UpdateService {
       rename("$root", $oldRoot);
       mkdir($root);
     }
-    $htaccess = file_get_contents(__DIR__ . "/template/.htaccess");
+    $htaccess = file_get_contents(__DIR__ . "/../.htaccess");
     file_put_contents("$root/.htaccess", $this->applyTemplate($htaccess));
-    $indexphp = file_get_contents(__DIR__ . "/template/index.php");
+    $indexphp = file_get_contents(__DIR__ . "/../template/index.php");
     file_put_contents("$root/index.php", $this->applyTemplate($indexphp));
     file_put_contents($this->getSiteDirPath() . "/live", $this->meVer);
   }
