@@ -64,6 +64,8 @@ class SourceUpdater {
         chdir(DirUtil::absPath($this->root, $this->repoDir, $name));
         $destDir = DirUtil::absPath($dir, $this->destDir[$name]);
         system("git checkout-index --prefix $destDir -a");
+        file_put_contents($destDir.'/.git-revision',
+          trim(`git rev-parse HEAD`));
       }
       chdir($dir);
       system("composer install --no-dev -o");
