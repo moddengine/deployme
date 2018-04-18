@@ -1,4 +1,4 @@
 # Managed by moddengine updateme
 
-DirectoryIndex index.php
-FallbackResource /index.php
+DirectoryIndex index.udo
+FallbackResource /index.udo
