@@ -1,0 +1,47 @@
+{
+  "0": {
+    "themepart": [],
+    "theme": [
+      "basic16"
+    ],
+    "font": [],
+    "lib": [],
+    "moddeng": [
+      "buildpage",
+      "buildform",
+      "buildemail",
+      "buildcat",
+      "googleanalytics",
+      "siteverify",
+      "siteconfig",
+      "mandrill",
+      "folio",
+      "news",
+      "back2top",
+      "hitstat",
+      "sassbase",
+      "buildpopup",
+      "prodsimple",
+      "buildcat",
+      "prodorder",
+      "shipcalc",
+      "promocode",
+      "checkout2",
+      "paybase",
+      "paystripe",
+      "paypaypal",
+      "colourclashorderpdf",
+      "searchsolr"
+    ]
+  },
+  "1": {
+    "theme": [],
+    "themepart": [],
+    "lib": [],
+    "font": [],
+    "+moddeng": [
+      "admin14"
+    ],
+    "view": "admin14"
+  }
+}
