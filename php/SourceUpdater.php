@@ -26,6 +26,8 @@ class SourceUpdater {
 
   protected $branch;
 
+  protected $donePull = false;
+
   function __construct($branch) {
     $this->branch = $branch;
   }
@@ -42,9 +44,11 @@ class SourceUpdater {
         system("git clone -b {$this->branch} $gitUrl $repoDir");
       }
     }
+    $this->donePull = true;
   }
 
   function getHash() {
+    if(!$this->donePull) $this->pull();
     $gitHashes = [];
     foreach($this->gitSource as $name => $gitUrl) {
       $repoDir = DirUtil::absPath($this->root, $name);
