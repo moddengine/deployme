@@ -51,7 +51,7 @@ class SourceUpdater {
     if(!$this->donePull) $this->pull();
     $gitHashes = [];
     foreach($this->gitSource as $name => $gitUrl) {
-      $repoDir = DirUtil::absPath($this->root, $name);
+      $repoDir = DirUtil::absPath($this->root, $this->repoDir, $name);
       chdir($repoDir);
       $gitHashes[] = trim(`git rev-parse HEAD`);
     }
